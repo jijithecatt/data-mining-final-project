@@ -109,10 +109,12 @@ print('Number of objects in testing set:  {}'.format(x_test.shape[0]))
 # In[7]:
 
 
+import time
 from sklearn import tree
 from sklearn.metrics import accuracy_score
 import matplotlib.pyplot as plot
 
+t_start = time.time_ns()
 maxDepth = np.arange(1, 51)
 trainAccuracy = np.zeros(50)
 testAccuracy = np.zeros(50)
@@ -128,7 +130,9 @@ for i in range(1, 51):
 plot.plot(maxDepth, trainAccuracy,'ro-', maxDepth,testAccuracy,'bv--')
 plot.legend(['Training Accuracy', 'Test Accuracy'])
 plot.xlabel('Max depth')
-plot.ylabel('Accuracy')   
+plot.ylabel('Accuracy')  
+duration = time.time_ns() - t_start
+print('Time to find max depth in nanosecond: {}'.format(duration))
 
 
 # ### Decision tree applying on data
@@ -136,15 +140,19 @@ plot.ylabel('Accuracy')
 # In[8]:
 
 
+t_start = time.time_ns()
 maxDepth = 5
 clf = tree.DecisionTreeClassifier(criterion='entropy', max_depth=maxDepth)
 clf = clf.fit(x_train.loc[:, 'PC1':'PC10'], y_train)
+duration = time.time_ns() - t_start
+print('Time to build the Decision Tree classifier in nanosecond: {}'.format(duration))
 
 y_pred_train = clf.predict(x_train.loc[:, 'PC1':'PC10'])
+t_start = time.time_ns()
 y_pred = clf.predict(x_test.loc[:, 'PC1':'PC10'])
-y_pred = pd.Series(y_pred, name='Predicted Class')
-y_pred.index = x_test.index
-predictions = pd.concat([x_test, y_pred, y_test], axis=1)
+duration = time.time_ns() - t_start
+print('Time to run on the test set in nanosecond: {}'.format(duration))
+
 print('Decision tree with max depth = {}'.format(maxDepth))
 print('Accuracy on training data is {}'.format(accuracy_score(y_train, y_pred_train)))
 print('Accuracy on testing data is  {}'.format(accuracy_score(y_test, y_pred)))    
@@ -173,6 +181,7 @@ Image(graph.create_png())
 
 from sklearn.neighbors import KNeighborsClassifier
 
+t_start = time.time_ns()
 k = np.arange(1, 51)
 trainAccuracy = np.zeros(50)
 testAccuracy = np.zeros(50)
@@ -189,6 +198,8 @@ plot.plot(k, trainAccuracy,'ro-', k ,testAccuracy,'bv--')
 plot.legend(['Training Accuracy', 'Test Accuracy'])
 plot.xlabel('Value of k')
 plot.ylabel('Accuracy')   
+duration = time.time_ns() - t_start
+print('Time to find k in nanosecond: {}'.format(duration))
 
 
 # ### K-nearest neighbor applying on data
@@ -196,15 +207,19 @@ plot.ylabel('Accuracy')
 # In[11]:
 
 
+t_start = time.time_ns()
 k = 3
 clf = KNeighborsClassifier(n_neighbors=k, metric='minkowski', p=2)
 clf = clf.fit(x_train.loc[:, 'PC1':'PC10'], y_train)
+duration = time.time_ns() - t_start
+print('Time to build the K-nearest Neighbor classifier in nanosecond: {}'.format(duration))
 
 y_pred_train = clf.predict(x_train.loc[:, 'PC1':'PC10'])
+t_start = time.time_ns()
 y_pred = clf.predict(x_test.loc[:, 'PC1':'PC10'])
-y_pred = pd.Series(y_pred, name='Predicted Class')
-y_pred.index = x_test.index
-predictions = pd.concat([x_test, y_pred, y_test], axis=1)
+duration = time.time_ns() - t_start
+print('Time to run on the test set in nanosecond: {}'.format(duration))
+
 
 print('K-nearest neighbors with k = {}'.format(k))
 print('Accuracy on training data is {}'.format(accuracy_score(y_train, y_pred_train)))
@@ -221,14 +236,17 @@ print('Accuracy on testing data is  {}'.format(accuracy_score(y_test, y_pred)))
 from sklearn.linear_model import Perceptron
 
 # run perceptron with PCA
+t_start = time.time_ns()
 clf = Perceptron(tol=1e-3, random_state=2)
 clf = clf.fit(x_train.loc[:, 'PC1':'PC10'], y_train)
+duration = time.time_ns() - t_start
+print('Time to build the Perceptron classifier (on PCA dataset) in nanosecond: {}'.format(duration))
 
 y_pred_train = clf.predict(x_train.loc[:, 'PC1':'PC10'])
+t_start = time.time_ns()
 y_pred = clf.predict(x_test.loc[:, 'PC1':'PC10'])
-y_pred = pd.Series(y_pred, name='Predicted Class')
-y_pred.index = x_test.index
-predictions = pd.concat([x_test, y_pred, y_test], axis=1)
+duration = time.time_ns() - t_start
+print('Time to run on the test set in nanosecond: {}'.format(duration))
 
 print('Perceptron with PCA:')
 print('Accuracy on training data is {}'.format(accuracy_score(y_train, y_pred_train)))
@@ -245,14 +263,17 @@ y_original = data.loc[:, 'Label']
 x_original = data.drop(['Label'], axis=1)
 x_train, x_test, y_train, y_test = train_test_split(x_original, y_original, test_size=0.3, random_state=2)
 
+t_start = time.time_ns()
 clf = Perceptron(tol=1e-3, random_state=2)
 clf = clf.fit(x_train.loc[:, 'Flow Duration':'Idle Min'], y_train)
+duration = time.time_ns() - t_start
+print('Time to build the Perceptron classifier (on original dataset) in nanosecond: {}'.format(duration))
 
 y_pred_train = clf.predict(x_train.loc[:, 'Flow Duration':'Idle Min'])
+t_start = time.time_ns()
 y_pred = clf.predict(x_test.loc[:, 'Flow Duration':'Idle Min'])
-y_pred = pd.Series(y_pred, name='Predicted Class')
-y_pred.index = x_test.index
-predictions = pd.concat([x_test, y_pred, y_test], axis=1)
+duration = time.time_ns() - t_start
+print('Time to run on the test set in nanosecond: {}'.format(duration))
 
 print('Perceptron without PCA:')
 print('Accuracy on training data is {}'.format(accuracy_score(y_train, y_pred_train)))
