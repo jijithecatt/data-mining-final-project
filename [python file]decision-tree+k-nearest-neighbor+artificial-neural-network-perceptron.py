@@ -237,7 +237,7 @@ from sklearn.linear_model import Perceptron
 
 # run perceptron with PCA
 t_start = time.time_ns()
-clf = Perceptron(tol=1e-3, random_state=2)
+clf = Perceptron(tol=1e-3, fit_intercept=False, random_state=2)
 clf = clf.fit(x_train.loc[:, 'PC1':'PC10'], y_train)
 duration = time.time_ns() - t_start
 print('Time to build the Perceptron classifier (on PCA dataset) in nanosecond: {}'.format(duration))
@@ -280,9 +280,39 @@ print('Accuracy on training data is {}'.format(accuracy_score(y_train, y_pred_tr
 print('Accuracy on testing data is  {}'.format(accuracy_score(y_test, y_pred)))    
 
 
-# # 4. Data visualization
+# ### Perceptron accuracy visualization (with PCA)
 
 # In[14]:
+
+
+from sklearn.linear_model import SGDClassifier
+
+y = new.loc[:, 'Label']
+x = new.drop(['Label'], axis=1)
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=2)
+
+lrate = np.arange(0.1, 2.1, 0.1)
+trainAccuracy = np.zeros(20)
+testAccuracy = np.zeros(20)
+for i in range(20):
+    clf = SGDClassifier(loss="perceptron", fit_intercept=False, eta0=lrate[i-1], learning_rate="constant", penalty=None)
+    clf = clf.fit(x_train.loc[:, 'PC1':'PC10'], y_train)
+
+    y_pred_train = clf.predict(x_train.loc[:, 'PC1':'PC10'])
+    trainAccuracy[i - 1] = accuracy_score(y_train, y_pred_train)
+    y_pred = clf.predict(x_test.loc[:, 'PC1':'PC10'])
+    testAccuracy[i - 1] = accuracy_score(y_test, y_pred)
+
+plot.plot(lrate, trainAccuracy,'ro-', lrate, testAccuracy,'bv--')
+plot.legend(['Training Accuracy', 'Test Accuracy'])
+plot.xlabel('Learning rate')
+plot.ylabel('Accuracy') 
+
+
+# # 4. Data visualization
+
+# In[15]:
 
 
 # stratification subsetting the dataset to visualize
@@ -294,7 +324,7 @@ print('Number of objects in the subset to be visualized: {}'.format(visualizedDa
 visualizedData.head(20)
 
 
-# In[15]:
+# In[16]:
 
 
 # Andrews' curves plot
